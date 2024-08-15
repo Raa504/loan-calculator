@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EGH Loan Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      position: relative;
+    }
+
+    .calculator h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      text-align: center;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .result p {
+      font-size: 16px;
+      color: #333;
+      margin: 10px 0;
+    }
+
+    .copyright {
+      font-size: 12px;
+      color: #aaa;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <h2>EGH Loan Calculator</h2>
+    <div class="input-group">
+      <label for="loanAmount">Loan Amount (RM):</label>
+      <input type="number" id="loanAmount" placeholder="Enter loan amount">
+    </div>
+    <div class="input-group">
+      <label for="interestRate">Interest Rate (%):</label>
+      <input type="number" id="interestRate" placeholder="Enter interest rate">
+    </div>
+    <div class="input-group">
+      <label for="months">Number of Months:</label>
+      <input type="number" id="months" placeholder="Enter number of months">
+    </div>
+    <button class="button" onclick="calculateLoan()">Calculate</button>
+    <button class="button" style="background-color: #28a745; margin-top: 10px;" onclick="generatePaymentSchedule()">Generate Payment Schedule (Excel)</button>
+    <div class="result" id="result" style="display:none;">
+      <p id="monthlyInterest"></p>
+      <p id="totalInterest"></p>
+      <p id="totalRepayment"></p>
+      <p id="monthlyRepayment"></p>
+    </div>
+    <div class="copyright">
+      © 2024 Laa
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script>
+    function calculateLoan() {
+      // Get input values
+      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+      const interestRate = parseFloat(document.getElementById('interestRate').value);
+      const months = parseFloat(document.getElementById('months').value);
+
+      // Validate input
+      if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(months) || loanAmount <= 0 || interestRate <= 0 || months <= 0) {
+        alert('Please enter valid positive numbers for all fields.');
+        return;
+      }
+
+      // Calculate values
+      const monthlyInterest = loanAmount * (interestRate / 100);
+      const totalInterest = monthlyInterest * months;
+      const totalRepayment = loanAmount + totalInterest;
+      const monthlyRepayment = totalRepayment / months;
+
+      // Display results
+      document.getElementById('monthlyInterest').textContent = `Monthly Interest: RM ${monthlyInterest.toFixed(2)}`;
+      document.getElementById('totalInterest').textContent = `Total Interest: RM ${totalInterest.toFixed(2)}`;
+      document.getElementById('totalRepayment').textContent = `Total Repayment: RM ${totalRepayment.toFixed(2)}`;
+      document.getElementById('monthlyRepayment').textContent = `Monthly Repayment: RM ${monthlyRepayment.toFixed(2)}`;
+      document.getElementById('result').style.display = 'block';
+    }
+
+    function generatePaymentSchedule() {
+      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+      const interestRate = parseFloat(document.getElementById('interestRate').value);
+      const months = parseFloat(document.getElementById('months').value);
+
+      // Validate input
+      if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(months) || loanAmount <= 0 || interestRate <= 0 || months <= 0) {
+        alert('Please enter valid positive numbers for all fields.');
+        return;
+      }
+
+      const monthlyInterest = loanAmount * (interestRate / 100);
+      const totalInterest = monthlyInterest * months;
+      const totalRepayment = loanAmount + totalInterest;
+      const monthlyRepayment = totalRepayment / months;
+
+      // Generate payment schedule
+      let schedule = [
+        ["Loan Payment Schedule"],
+        [`Loan Amount: RM ${loanAmount.toFixed(2)}`, `Interest Rate: ${interestRate}%`, `Term: ${months} months`],
+        [],
+        ["Month", "Interest Payment (RM)", "Principal Payment (RM)", "Total Payment (RM)", "Remaining Balance (RM)"]
+      ];
+      let balance = totalRepayment;
+
+      for (let i = 1; i <= months; i++) {
+        let interestPayment = monthlyInterest;
+        let principalPayment = monthlyRepayment - interestPayment;
+        balance -= monthlyRepayment;
+
+        schedule.push([
+          i,
+          interestPayment.toFixed(2),
+          principalPayment.toFixed(2),
+          monthlyRepayment.toFixed(2),
+          Math.max(balance, 0).toFixed(2)
+        ]);
+      }
+
+      // Create Excel file with metadata
+      const ws = XLSX.utils.aoa_to_sheet(schedule);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Payment Schedule");
+
+      // Set the metadata
+      wb.Props = {
+        Title: "Loan Payment Schedule",
+        Subject: "Loan Calculator",
+        Author: "Laa",
+        CreatedDate: new Date()
+      };
+
+      // Apply styles to the title and header rows
+      const titleStyle = {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: "center" }
+      };
+
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4F81BD" } },
+        alignment: { horizontal: "center" }
+      };
+
+      ws["A1"].s = titleStyle;
+      ws["A4"].s = headerStyle;
+      ws["B4"].s = headerStyle;
+      ws["C4"].s = headerStyle;
+      ws["D4"].s = headerStyle;
+      ws["E4"].s = headerStyle;
+
+      // Apply borders and alternating row colors
+      const rowCount = schedule.length;
+      for (let i = 5; i <= rowCount; i++) {
+        const rowColor = (i % 2 === 0) ? "F2F2F2" : "FFFFFF";
+        ["A", "B", "C", "D", "E"].forEach(col => {
+          ws[`${col}${i}`].s = {
+            fill: { fgColor: { rgb: rowColor } },
+            border: {
+              top: { style: "thin", color: { rgb: "CCCCCC" } },
+              bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+              left: { style: "thin", color: { rgb: "CCCCCC" } },
+              right: { style: "thin", color: { rgb: "CCCCCC" } }
+            },
+            alignment: { horizontal: "center" }
+          };
+        });
+      }
+
+      // Set column widths
+      ws["!cols"] = [{ wch: 10 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 25 }];
+
+      // Merge title row
+      ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+
+      // Download the file
+      XLSX.writeFile(wb, "Loan_Payment_Schedule.xlsx");
+    }
+  </script>
+
+</body>
+</html>
